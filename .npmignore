@@ -6,6 +6,7 @@ HISTORY.md
 
 # Dependency directory
 node_modules
+package-lock.json
 
 # Typescript files
 tsconfig.json
@@ -14,4 +15,5 @@ tsconfig.json
 src/**/*.ts
 
 # Test files
+jest.config.js
 test/**/*.ts
