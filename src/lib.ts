@@ -157,3 +157,38 @@ const versioningMiddleware = (
     };
   }
 };
+
+/**
+ * Finds the latest version among an array of versions.
+ * @param {string[]} versions - The array of version strings.
+ * @returns {string | null} - The latest version string, or null if the array is empty.
+ */
+const findLatestVersion = (versions: string[]): string | null => {
+  // Find the latest version among an array of versions
+  if (!versions || versions.length === 0) {
+    return null;
+  }
+
+  const processedVersions: string[][] = versions.map((version) => {
+    // Process versions by removing special characters and padding with zeros
+    const versionArr: string[] = version.replace(/[\^~]/g, "").split(".");
+    for (let i = 0; i < 2; i++) {
+      versionArr[i] = versionArr[i] || "0";
+    }
+    return versionArr;
+  });
+
+  // Sort processed versions to find the latest one
+  processedVersions.sort((v1Arr, v2Arr) => {
+    for (let i = 0; i < 2; i++) {
+      if (Number(v1Arr[i]) > Number(v2Arr[i])) {
+        return 1;
+      } else if (Number(v1Arr[i]) < Number(v2Arr[i])) {
+        return -1;
+      }
+    }
+    return 0;
+  });
+
+  return processedVersions[processedVersions.length - 1].join(".");
+};
