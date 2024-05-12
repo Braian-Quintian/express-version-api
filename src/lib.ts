@@ -92,3 +92,68 @@ const executeDefaultHandler = (
     }
   }
 };
+
+/**
+ * Main middleware that handles version-based routing logic.
+ * @param {VersionHandlers} versionHandlers - The object containing all version handlers.
+ * @param {((req: any, res: any, next: any) => void) | undefined} defaultHandler - The default handler function.
+ * @returns {((req: any, res: any, next: any) => void)} - The middleware function.
+ */
+const versioningMiddleware = (
+  versionHandlers: VersionHandlers,
+  defaultHandler?: (req: any, res: any, next: any) => void
+): ((req: any, res: any, next: any) => void) => {
+  if (
+    !versionHandlers ||
+    typeof versionHandlers !== "object" ||
+    Array.isArray(versionHandlers)
+  ) {
+    throw new Error(
+      "Invalid argument: 'versionHandlers' must be a non-array object."
+    );
+  } else {
+    return (req, res, next) => {
+      const clientVersion: string | boolean = extractVersionFromRequest(req);
+      const keys: string[] = Object.keys(versionHandlers);
+
+      if (!clientVersion) {
+        // Execute the default handler if no version is provided
+        executeDefaultHandler(
+          defaultHandler,
+          versionHandlers,
+          keys,
+          req,
+          res,
+          next
+        );
+        return;
+      }
+
+      for (let i = 0; i < keys.length; i++) {
+        const handlerKey: string = keys[i];
+        if (
+          executeVersionHandler(
+            handlerKey,
+            clientVersion as string,
+            versionHandlers,
+            req,
+            res,
+            next
+          )
+        ) {
+          return;
+        }
+      }
+
+      // If no matching version is found, execute the default handler
+      executeDefaultHandler(
+        defaultHandler,
+        versionHandlers,
+        keys,
+        req,
+        res,
+        next
+      );
+    };
+  }
+};
