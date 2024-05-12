@@ -12,3 +12,6 @@ tsconfig.json
 
 # Code files
 src/**/*.ts
+
+# Test files
+test/**/*.ts
