@@ -125,15 +125,7 @@ const versioningMiddleware = (
 
       if (!clientVersion) {
         // Execute the default handler if no version is provided
-        executeDefaultHandler(
-          defaultHandler,
-          versionHandlers,
-          keys,
-          req,
-          res,
-          next
-        );
-        return;
+        return res.status(422).send("Unprocessable Entity: No version provided.");
       }
 
       for (let i = 0; i < keys.length; i++) {
