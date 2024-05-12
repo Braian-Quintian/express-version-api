@@ -1,0 +1,14 @@
+# gitignore file
+.gitignore
+
+# History files
+HISTORY.md
+
+# Dependency directory
+node_modules
+
+# Typescript files
+tsconfig.json
+
+# Code files
+src/**/*.ts
