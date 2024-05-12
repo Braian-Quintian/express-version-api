@@ -83,12 +83,19 @@ const executeDefaultHandler = (
   res: any,
   next: any
 ): void => {
+  // Check if there is a defaultHandler defined and execute it if it exists
   if (defaultHandler) {
-    defaultHandler.call(this, req, res, next);
+    defaultHandler(req, res, next);
   } else {
+    // If there is no defaultHandler, determine the most recent version
     const latestVersionKey = findLatestVersion(keys);
+
+    // If the latest version is found and there is a handler for that version, execute it
     if (latestVersionKey && versionHandlers[latestVersionKey]) {
-      versionHandlers[latestVersionKey].call(this, req, res, next);
+      versionHandlers[latestVersionKey](req, res, next);
+    } else {
+      // If no valid version is found to handle the request, respond with a 422 error
+      res.status(422).send("Unprocessable Entity: No valid handler found for this request.");
     }
   }
 };
