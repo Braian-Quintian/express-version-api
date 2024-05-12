@@ -65,3 +65,30 @@ const executeVersionHandler = (
   }
   return false;
 };
+
+/**
+ * Executes the default handler if no matching version is found.
+ * @param {((req: any, res: any, next: any) => void) | undefined} defaultHandler - The default handler function.
+ * @param {VersionHandlers} versionHandlers - The object containing all version handlers.
+ * @param {string[]} keys - The keys of all version handlers.
+ * @param {any} req - The request object.
+ * @param {any} res - The response object.
+ * @param {any} next - The next middleware function.
+ */
+const executeDefaultHandler = (
+  defaultHandler: ((req: any, res: any, next: any) => void) | undefined,
+  versionHandlers: VersionHandlers,
+  keys: string[],
+  req: any,
+  res: any,
+  next: any
+): void => {
+  if (defaultHandler) {
+    defaultHandler.call(this, req, res, next);
+  } else {
+    const latestVersionKey = findLatestVersion(keys);
+    if (latestVersionKey && versionHandlers[latestVersionKey]) {
+      versionHandlers[latestVersionKey].call(this, req, res, next);
+    }
+  }
+};
