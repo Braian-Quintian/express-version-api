@@ -4,7 +4,14 @@
   "version": "1.0.0",
   "author": "Braian Quintian",
   "license": "MIT",
-  "repository": "https://github.com/Braian-Quintian/express-version-api",
+  "homepage": "https://github.com/Braian-Quintian/express-version-routes?tab=readme-ov-file",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Braian-Quintian/express-version-api"
+  },
+  "bugs": {
+    "url": "https://github.com/Braian-Quintian/express-version-routes/issues"
+  },
   "main": "dist/index.js",
   "engines": {
     "node": ">=20.0.0"
@@ -22,7 +29,6 @@
   "files": [
     "dist"
   ],
-  "private": true,
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
