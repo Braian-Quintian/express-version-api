@@ -1,5 +1,5 @@
 # Express version api
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/Braian-Quintian/express-version-routes?tab=MIT-1-ov-file#readme)
 
 **🛑Note:** This library is intended for personal use and experimentation, and is **_not recommended_** for production environments or widespread adoption.
 
