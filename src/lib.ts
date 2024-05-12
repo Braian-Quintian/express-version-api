@@ -192,3 +192,5 @@ const findLatestVersion = (versions: string[]): string | null => {
 
   return processedVersions[processedVersions.length - 1].join(".");
 };
+
+export default versioningMiddleware;
