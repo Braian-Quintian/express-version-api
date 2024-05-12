@@ -8,6 +8,7 @@
     "skipLibCheck": true, // Omitir comprobación de librerías
     "declaration": true, // Generar archivos de definición (.d.ts)
     "declarationDir": "dist", // Directorio para archivos de definición
+    "moduleResolution": "node"  // Agregar esta línea para soportar resolución de módulos en CommonJS
   },
   "include": ["src/**/*.ts"], // Patrón de archivos a incluir en la compilación
   "exclude": ["node_modules"] // Patrón de archivos a excluir de la compilación
