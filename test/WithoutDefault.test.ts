@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import versionApi from "../dist/index"; // Importing the express-version-api library
+import versionApi from "express-version-api"; // Importing the express-version-api library
 import request from "supertest"; // Importing supertest for making HTTP requests to the Express app
 
 // Defining handlers for API versions 1.0.0 and 2.0.0
