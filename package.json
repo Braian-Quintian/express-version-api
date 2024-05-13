@@ -1,5 +1,5 @@
 {
-  "name": "express-version-api",
+  "name": "@Braian-Quintian/express-version-api",
   "description": "Middleware for versioning routes/APIs in Express.js using ECMAScript 6. Note: This library is intended for personal use and experimentation, and is not recommended for production environments or widespread adoption.",
   "version": "1.0.1",
   "author": "Braian Quintian",
