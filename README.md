@@ -1,7 +1,14 @@
 # Express version api
+
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/Braian-Quintian/express-version-routes?tab=MIT-1-ov-file#readme)
 
+Express version api is a simple library that allows you to create versioned routes in your Express.js application. It provides a middleware function that allows you to define different route handlers based on the requested API version. This can be useful when you need to maintain multiple versions of an API and serve different responses based on the version number specified by the client.
+
 **🛑Note:** This library is intended for personal use and experimentation, and is **_not recommended_** for production environments or widespread adoption.
+
+# 🚧 Under Development 🚧
+
+**This library is actively being developed. Improvements and new features are added regularly. As such, there's no stable version and changes are frequent. Please consider this when using the library.**
 
 ## Installation
 
@@ -120,11 +127,18 @@ To run tests, run the following command
 
 ---
 
+## Roadmap
+
+- Added support for semver features🌟
+- Enhanced support for APIs starting with v1🌟
+- Add more integrations and examples🌟
+
 ### Development Status
 
 This library is currently under active development. We are continuously working on improving and adding new features to enhance its functionality.
 
 ## Contributing
+
 We welcome contributions! If you're interested in improving this library or adding new features, we'd love to receive your contributions.
 
 ## Feedback
