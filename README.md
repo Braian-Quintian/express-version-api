@@ -119,7 +119,7 @@ Make sure to handle the Accept-Version header appropriately in your middleware o
 
 ## Running Tests
 
-To run tests, run the following command
+This library uses Jest for testing. To run the tests, you can use the following command:
 
 ```bash
   npm run test
