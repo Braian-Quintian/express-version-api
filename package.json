@@ -1,10 +1,13 @@
 {
   "name": "express-version-api",
   "description": "Middleware for versioning routes/APIs in Express.js using ECMAScript 6. Note: This library is intended for personal use and experimentation, and is not recommended for production environments or widespread adoption.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Braian Quintian",
   "license": "MIT",
   "homepage": "https://github.com/Braian-Quintian/express-version-routes?tab=readme-ov-file",
+  "publishConfig": {
+    "@Braian-Quintian:registry": "https://npm.pkg.github.com"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Braian-Quintian/express-version-api"
