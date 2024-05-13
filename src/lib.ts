@@ -192,4 +192,8 @@ const findLatestVersion = (versions: string[]): string | null => {
   return processedVersions[processedVersions.length - 1].join(".");
 };
 
+// Exporta la función para CommonJS
+module.exports = versioningMiddleware;
+
+// Exporta la función como default para ES6 modules
 export default versioningMiddleware;
