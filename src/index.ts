@@ -1,3 +1,3 @@
-import versioningMiddleware from './lib';
-
-export default versioningMiddleware;
+import versionApi from "./lib";
+module.exports = versionApi;
+export default versionApi;
