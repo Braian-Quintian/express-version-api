@@ -1,15 +1,13 @@
 # gitignore file
 .gitignore
 
-# History files
-HISTORY.md
-
 # Dependency directory
 node_modules
 package-lock.json
 
 # Typescript files
-tsconfig.json
+tsconfig.esm.json
+tsconfig.cjs.json
 
 # Code files
 src/**/*.ts
