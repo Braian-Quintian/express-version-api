@@ -1,0 +1,12 @@
+{
+  // Extiende la configuración base desde el archivo ESM
+  "extends": "./tsconfig.esm.json",
+
+  "compilerOptions": {
+    // Compila usando CommonJS (para `require()`)
+    "module": "CommonJS",
+
+    // Carpeta de salida separada para los archivos CJS compilados
+    "outDir": "dist/cjs"
+  }
+}

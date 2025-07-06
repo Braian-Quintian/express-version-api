@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    // Transpila a JavaScript moderno compatible con Node.js 14+
+    "target": "ES2020",
+
+    // Usa el sistema de módulos ESM (ECMAScript Modules)
+    "module": "ESNext",
+
+    // Carpeta de salida para los archivos ESM compilados
+    "outDir": "dist/esm",
+
+    // Carpeta raíz del código fuente
+    "rootDir": "src",
+
+    // Genera archivos de tipado .d.ts
+    "declaration": true,
+
+    // Directorio donde se guardarán los .d.ts
+    "declarationDir": "dist/types",
+
+    // Activa todas las opciones estrictas de TypeScript
+    "strict": true,
+
+    // Permite importar módulos CommonJS como si fueran ESModules
+    "esModuleInterop": true,
+
+    // Omite verificación de tipado en node_modules
+    "skipLibCheck": true,
+
+    // Usa la resolución de módulos estilo Node.js
+    "moduleResolution": "node",
+
+    // Permite importaciones como `import fs from 'fs'` aunque no tenga export default
+    "allowSyntheticDefaultImports": true,
+
+    // Verifica que el casing de archivos sea consistente (útil en sistemas Linux)
+    "forceConsistentCasingInFileNames": true,
+
+    // Genera archivos .map para debugging
+    "sourceMap": true
+  },
+  // Incluye archivos fuente desde src/
+  "include": ["src"],
+
+  // Excluye las carpetas innecesarias en compilación
+  "exclude": ["node_modules", "dist", "test"]
+}
