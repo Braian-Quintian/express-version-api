@@ -1,146 +1,162 @@
-# Express version api
+# 📦 express-version-api
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/Braian-Quintian/express-version-routes?tab=MIT-1-ov-file#readme)
+[![npm version](https://img.shields.io/npm/v/express-version-api.svg)](https://www.npmjs.com/package/express-version-api)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Braian-Quintian/express-version-api/test.yml)](https://github.com/Braian-Quintian/express-version-api/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+[![Coverage Status](https://img.shields.io/codecov/c/github/Braian-Quintian/express-version-api)](https://codecov.io/gh/Braian-Quintian/express-version-api)
+[![Node.js](https://img.shields.io/badge/node-%3E=14.0.0-brightgreen)](https://nodejs.org)
 
-Express version api is a simple library that allows you to create versioned routes in your Express.js application. It provides a middleware function that allows you to define different route handlers based on the requested API version. This can be useful when you need to maintain multiple versions of an API and serve different responses based on the version number specified by the client.
+> Versioned routing middleware for Express.js based on semantic versioning (`semver`).
 
-**🛑Note:** This library is intended for personal use and experimentation, and is **_not recommended_** for production environments or widespread adoption.
+---
 
-# 🚧 Under Development 🚧
+**⚠️ NOTE:** This package is intended for personal use and experimentation. It is **not recommended** for production use.
 
-**This library is actively being developed. Improvements and new features are added regularly. As such, there's no stable version and changes are frequent. Please consider this when using the library.**
+---
 
-## Installation
+## 🚧 Project Status
+
+This library is under **active development**. Features and improvements are being added frequently. Use at your own discretion in unstable environments.
+
+---
+
+## ✨ Features
+
+- ✅ Version-based routing (`^`, `~`, exact versions)
+- ✅ Automatic fallback to default or latest version
+- ✅ Fully compatible with Express middleware
+- ✅ Well-tested with Jest and Supertest
+
+---
+
+## 📦 Installation
 
 ```bash
 npm install express-version-api
 ```
 
-## Disclaimer
+---
 
-**⚠️ Disclaimer: This library is intended for personal use and experimentation. While it is released under the MIT license, allowing anyone to use and modify it, please note the following considerations:**
+## 🚀 Quick Usage
 
-- **Not Recommended for Production:** This library is designed for educational and personal use. It is not optimized for production environments or widespread adoption. Use in production settings is discouraged.
+```js
+const express = require("express");
+const versionApi = require("express-version-api");
+const app = express();
 
-- **Limited Support and Maintenance:** As this is a personal project, there may be limited ongoing support or maintenance. Contributors are welcome, but please manage expectations accordingly.
+const handlerV1 = (req, res) => res.send("This is version 1.0.0");
+const handlerV2 = (req, res) => res.send("This is version 2.0.0");
 
-- **Not a Replacement for Established Libraries:** This library is not intended to replace established or widely used libraries for API versioning in production applications. Consider using dedicated solutions with robust community support for production environments.
+app.get(
+  "/api",
+  versionApi({
+    "1.0.0": handlerV1,
+    "2.0.0": handlerV2,
+  })
+);
+
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
+});
+```
 
 ---
 
-## Usage
+## 🎯 Semver Support (`^`, `~`)
 
-> You can use the `versionApi` middleware to create versioned routes in your Express.js application. The `versionApi` middleware accepts an object with the following properties:
+| Symbol | Matches                    | Example Matches    |
+| ------ | -------------------------- | ------------------ |
+| `^`    | Major-compatible (`1.x.x`) | `^1.0.0` → `1.2.3` |
+| `~`    | Minor-compatible (`2.1.x`) | `~2.1.0` → `2.1.4` |
+| Exact  | Exact version only         | `3.0.0` → `3.0.0`  |
 
-- `version` (string): The version of the API.
-- `function` (function): The function that will be called when the route is accessed.
-
-> Follows semver versioning format. Supports '^, ~' symbols for matching version numbers.
-
-### Example basic:
-
-```javascript
-const express = require("express");
-const versionApi = require("express-version-api");
-const app = express();
-
-// Define your route with versioned handlers
+```js
 app.get(
   "/api",
   versionApi({
-    "1.0.0": functionV1, // Route handler for API version 1.0.0
-    "2.0.0": functionV2, // Route handler for API version 2.0.0
+    "^1.0.0": handlerV1,
+    "~2.1.0": handlerV2,
+    "3.0.0": handlerV3,
   })
 );
-
-// Handler for version 1.0.0
-function functionV1(req, res) {
-  res.send("This is version 1.0.0"); // Sends a response for API version 1.0.0
-}
-
-// Handler for version 2.0.0
-function functionV2(req, res) {
-  res.send("This is version 2.0.0"); // Sends a response for API version 2.0.0
-}
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
 ```
 
-### Example using '^, ~' semver symbols:
+---
 
-> The `^` symbol is used to match the specified version and any minor or patch updates. The `~` symbol is used to match the specified version and any patch updates.
+## 📥 Version Header
 
-**Caret Operator** **_(^)_**: Matches the specified version and any minor or patch updates. For example, `^1.0.0` will match `1.0.0`, `1.1.0`, `1.1.1`, etc., but not `2.0.0`.
-
-**Tilde Operator** **_(~)_**: Matches the specified version and any patch updates. For example, ~1.0.0 will match `1.0.0`, `1.0.1`, `1.0.2`, etc., but not `1.1.0`.
-
-```javascript
-const express = require("express");
-const versionApi = require("express-version-api");
-const app = express();
-
-// Define your route with versioned handlers
-app.get(
-  "/api",
-  versionApi({
-    "^1.0.0": functionV1, // Route handler for API version 1.X.X Caret Operator
-    "~2.0.0": functionV2, // Route handler for API version 2.0.X Tilde Operator
-  })
-);
-
-// Handler for version 1.0.0
-function functionV1(req, res) {
-  res.send("This is version 1.0.0"); // Sends a response for API version 1.X.X
-}
-
-// Handler for version 2.0.0
-function functionV2(req, res) {
-  res.send("This is version 2.0.0"); // Sends a response for API version 2.0.X
-}
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
-```
-
-### Versioning via Headers
-
-To specify the desired API version, clients should include the `Accept-Version` header in their requests with the version number they want to access. Here's an example of how to set the Accept-Version header using curl:
+Clients should include the `Accept-Version` HTTP header in requests:
 
 ```bash
 curl -H "Accept-Version: 1.0.0" http://localhost:3000/api
 ```
 
-In this example, the server will invoke functionV1 when the request specifies Accept-Version: 1.0.0 and functionV2 when Accept-Version: 2.0.0 is specified.
+---
 
-Make sure to handle the Accept-Version header appropriately in your middleware or route handlers to serve the correct API version based on client preferences.
-
-## Running Tests
-
-This library uses Jest for testing. To run the tests, you can use the following command:
+## 🧪 Running Tests
 
 ```bash
-  npm run test
+npm run test
+```
+
+Tests are powered by [Jest](https://jestjs.io/) and [Supertest](https://github.com/visionmedia/supertest). Full coverage is included.
+
+---
+
+## 🧩 API
+
+### `versionApi(handlers, defaultHandler?)`
+
+- `handlers`: Object with semver-style version strings as keys and Express handlers as values.
+- `defaultHandler`: Optional fallback if no version matches.
+
+```js
+app.get(
+  "/api",
+  versionApi({
+    "^1.0.0": v1Handler,
+    "~2.0.0": v2Handler,
+    "3.0.0": v3Handler,
+  }, fallbackHandler)
+);
 ```
 
 ---
 
-## Roadmap
+## 🔄 Fallback Strategy
 
-- Added support for semver features🌟
-- Enhanced support for APIs starting with v1🌟
-- Add more integrations and examples🌟
+If the version is not matched:
 
-### Development Status
+1. Use `defaultHandler` if defined
+2. Otherwise, fallback to the latest available handler
+3. If no handler matches, return `422 Unprocessable Entity`
 
-This library is currently under active development. We are continuously working on improving and adding new features to enhance its functionality.
+---
 
-## Contributing
+## 📚 Examples
 
-We welcome contributions! If you're interested in improving this library or adding new features, we'd love to receive your contributions.
+Check the `test/` directory for integration examples and how `^`, `~` and fallbacks work in practice.
 
-## Feedback
+---
 
-If you have any feedback, please reach out to us at bquintian.developer@gmail.com
+## 🛣️ Roadmap
+
+- [x] Basic versioning with `^`, `~`, exact
+- [x] Default and latest fallback
+- [ ] Advanced semver range support (planned)
+- [ ] Improved validation and DX
+- [ ] Full ESM and CJS dual package
+- [ ] Typed handler inference with TypeScript
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+Contact: [bquintian.developer@gmail.com](mailto:bquintian.developer@gmail.com)
+
+---
+
+## 🛡 License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
