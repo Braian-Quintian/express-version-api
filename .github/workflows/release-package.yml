@@ -6,13 +6,15 @@ on:
 
 jobs:
   publish:
+    name: 🚀 Publish Package
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
+      packages: write
 
     steps:
-      - name: ⬇️ Checkout repo
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
 
       - name: ⚙️ Setup Node.js
@@ -28,10 +30,11 @@ jobs:
       - name: 🛠️ Build project
         run: npm run build
 
-      - name: ✅ Run tests
+      - name: ✅ Run tests before publish
         run: npm test
 
       - name: 🚀 Publish to NPM
-        run: npm publish --access public
+        run: |
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
