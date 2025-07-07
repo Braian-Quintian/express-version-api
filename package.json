@@ -34,6 +34,7 @@
     "build": "npm run build:esm && npm run build:cjs",
     "clean": "rm -rf dist",
     "prepare": "npm run clean && npm run build",
+    "lint": "eslint . --ext .ts",
     "test": "jest --config jest.config.ts --verbose"
   },
   "keywords": [
@@ -48,6 +49,7 @@
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
     "@types/supertest": "^6.0.3",
+    "eslint": "^9.30.1",
     "express": "5.1.0",
     "jest": "^30.0.4",
     "supertest": "^7.1.1",
