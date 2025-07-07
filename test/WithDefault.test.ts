@@ -1,48 +1,75 @@
 import express, { Request, Response } from "express";
-import versionApi from "express-version-api"; // Import the express-version-api library for API versioning
-import request from "supertest"; // Import supertest for making HTTP requests in testing
+import versionApi from "../src/lib"; // Usa directamente el código fuente en tests locales
+import request from "supertest";
 
-// Define route handlers for different API versions
-function functionV1(req: Request, res: Response) {
-  res.send("This is version 1.0.0"); // Response for API version 1.0.0
-}
+/**
+ * Handlers for different versions
+ */
+const handlerV1: express.RequestHandler = (req, res) => {
+  res.send("This is version 1.0.0");
+};
 
-function functionV2(req: Request, res: Response) {
-  res.send("This is version 2.0.0"); // Response for API version 2.0.0
-}
+const handlerV2: express.RequestHandler = (req, res) => {
+  res.send("This is version 2.0.0");
+};
 
-function functionV3(req: Request, res: Response) {
-  res.send("This is version 3.0.0"); // Response for API version 3.0.0
-}
+const handlerV3: express.RequestHandler = (req, res) => {
+  res.send("This is version 3.0.0");
+};
 
-// Configure Express application and apply versionApi middleware with version-specific route handlers
+/**
+ * Create an express app with the versioning middleware
+ */
 const app = express();
 app.get(
   "/api",
   versionApi({
-    "^1.0.0": functionV1, // Route handler for API version 1.X.X (Caret (^) Operator indicates compatible with version 1.0.0 up to, but not including, 2.0.0)
-    "~2.0.0": functionV2, // Route handler for API version 2.0.X (Tilde (~) Operator indicates compatible with version 2.0.0 up to, but not including, 2.1.0)
-    "3.0.0": functionV3, // Route handler for API version 3.0.0 (Exact Version)
+    "^1.0.0": handlerV1,
+    "~2.0.0": handlerV2,
+    "3.0.0": handlerV3,
   })
 );
 
-// Integration tests to verify the versionApi middleware's routing based on API version
-describe("API Versioning Middleware", () => {
-  it("should use the latest version if version not explicitly defined", async () => {
-    // If a version is not explicitly defined, the latest version (3.0.0) should be used
-    const response = await request(app)
+describe("API Versioning Middleware (Without Default Handler)", () => {
+  it("should match exact version 3.0.0", async () => {
+    const res = await request(app)
       .get("/api")
-      .set("Accept-Version", "4.0.0");
-    expect(response.status).toBe(200);
-    expect(response.text).toBe("This is version 3.0.0");
+      .set("Accept-Version", "3.0.0");
+
+    expect(res.status).toBe(200);
+    expect(res.text).toBe("This is version 3.0.0");
   });
 
-  it("should handle an unsupported API version gracefully", async () => {
-    // If an unsupported version is requested, the middleware should still respond with the latest supported version (3.0.0)
-    const response = await request(app)
+  it("should match version with ^ operator (1.x)", async () => {
+    const res = await request(app)
       .get("/api")
-      .set("Accept-Version", "4.0.0");
-    expect(response.status).toBe(200);
-    expect(response.text).toBe("This is version 3.0.0");
+      .set("Accept-Version", "1.2.3");
+
+    expect(res.status).toBe(200);
+    expect(res.text).toBe("This is version 1.0.0");
+  });
+
+  it("should match version with ~ operator (2.0.x)", async () => {
+    const res = await request(app)
+      .get("/api")
+      .set("Accept-Version", "2.0.5");
+
+    expect(res.status).toBe(200);
+    expect(res.text).toBe("This is version 2.0.0");
+  });
+
+  it("should fallback to latest version when version is unsupported", async () => {
+    const res = await request(app)
+      .get("/api")
+      .set("Accept-Version", "9.9.9");
+
+    expect(res.status).toBe(200);
+    expect(res.text).toBe("This is version 3.0.0");
+  });
+
+  it("should return 422 when version is missing", async () => {
+    const res = await request(app).get("/api");
+    expect(res.status).toBe(422);
+    expect(res.text).toMatch(/No version provided/i);
   });
 });
