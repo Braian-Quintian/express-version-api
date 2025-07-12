@@ -1,38 +1,27 @@
 // eslint.config.js
-import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
+const js = require('@eslint/js');
+const tseslint = require('typescript-eslint');
 
-export default [
+module.exports = [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   {
-    files: ['**/*.ts'],
+    files: ['src/**/*.ts'],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: './tsconfig.json',
+        project: './tsconfig.esm.json',
       },
     },
     rules: {
-      // Buenas prácticas generales
       'no-console': 'warn',
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      'no-undef': 'off', // innecesario con TypeScript
-
-      // TypeScript específicas
+      'no-undef': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
-
-      // Reglas opcionales según preferencia
       '@typescript-eslint/consistent-type-imports': 'warn',
-    },
-  },
-  {
-    files: ['test/**/*.ts'],
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ];

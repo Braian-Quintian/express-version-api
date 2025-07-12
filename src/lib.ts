@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import { type Request, type Response, type NextFunction, type RequestHandler } from "express";
 
 /**
  * An object that maps semantic version strings to specific request handlers.
@@ -115,7 +115,7 @@ export const executeVersionHandler = (
   const handler = versionHandlers[handlerKey];
 
   if (requestedVersion === targetVersion && typeof handler === "function") {
-    handler(req, res, next);
+    void handler(req, res, next);
     return true;
   }
 
@@ -152,7 +152,7 @@ export const executeDefaultHandler = (
 ): void => {
   // Step 1: Use explicitly provided default handler if available
   if (defaultHandler) {
-    defaultHandler(req, res, next);
+    void defaultHandler(req, res, next);
     return;
   }
 
@@ -168,7 +168,7 @@ export const executeDefaultHandler = (
 
   // Step 4: Invoke the fallback handler or return an error if none exists
   if (fallbackHandler) {
-    fallbackHandler(req, res, next);
+    void fallbackHandler(req, res, next);
   } else {
     res.status(422).send(notFoundMessage);
   }
