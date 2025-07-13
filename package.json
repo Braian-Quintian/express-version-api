@@ -7,7 +7,7 @@
   "homepage": "https://github.com/Braian-Quintian/express-version-api#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Braian-Quintian/express-version-api.git"
+    "url": "git+https://github.com/Braian-Quintian/express-version-api.git"
   },
   "bugs": {
     "url": "https://github.com/Braian-Quintian/express-version-api/issues"
