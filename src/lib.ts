@@ -52,20 +52,14 @@ interface VersionedRequest extends Request {
  * ```
  */
 export const extractVersionFromRequest = (req: VersionedRequest): string | false => {
-  if (!req) return false;
+  const sources = [req.version, req.headers["accept-version"]];
 
-  if (typeof req.version === "string") {
-    return req.version;
-  }
-
-  const headerVersion = req.headers["accept-version"];
-  if (typeof headerVersion === "string") {
-    return headerVersion;
+  for (const source of sources) {
+    if (typeof source === "string") return source;
   }
 
   return false;
 };
-
 /**
  * Executes a version handler if the client version matches the handler's semantic key.
  *
@@ -150,23 +144,19 @@ export const executeDefaultHandler = (
   next: NextFunction,
   notFoundMessage = "Unprocessable Entity: No valid version handler available."
 ): void => {
-  // Step 1: Use explicitly provided default handler if available
   if (defaultHandler) {
     void defaultHandler(req, res, next);
     return;
   }
 
-  // Step 2: Ensure there are handlers and version keys to fallback to
-  if (!versionHandlers || keys.length === 0) {
+  if (keys.length === 0) {
     res.status(422).send(notFoundMessage);
     return;
   }
 
-  // Step 3: Attempt to find the most recent version key
   const latestVersionKey = findLatestVersion(keys);
-  const fallbackHandler = versionHandlers[latestVersionKey ?? ""];
+  const fallbackHandler = latestVersionKey ? versionHandlers[latestVersionKey] : undefined;
 
-  // Step 4: Invoke the fallback handler or return an error if none exists
   if (fallbackHandler) {
     void fallbackHandler(req, res, next);
   } else {
