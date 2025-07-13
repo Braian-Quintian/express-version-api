@@ -1,6 +1,6 @@
 {
-  "name": "@braian-quintian/express-version-api",
-  "version": "1.0.5",
+  "name": "express-version-api",
+  "version": "1.0.6",
   "description": "Middleware for versioning routes/APIs in Express.js using semantic versioning like ^1.0 or ~1.2.",
   "author": "Braian Quintian",
   "license": "MIT",
