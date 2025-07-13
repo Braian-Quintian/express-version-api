@@ -1,3 +1,3 @@
-import versionApi from "./lib";
-module.exports = versionApi;
-export default versionApi;
+// Main entry point of the library.
+// Re-exports the default export from lib.ts to support both ESM and CommonJS.
+export { default } from "./lib";
