@@ -1,22 +1,20 @@
 {
-  // Extiende las opciones base del archivo tsconfig.esm.json
-  // Esto hereda configuraciones comunes como "strict", "target", "baseUrl", etc.
-  "extends": "./tsconfig.esm.json",
-
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    // Usa el sistema de módulos CommonJS, necesario para Jest (ya que Jest no usa ES Modules por defecto)
-    "module": "CommonJS",
+    "target": "ES2022",
+    "lib": ["ES2022"],
 
-    // Directorio de salida para los archivos compilados del directorio de pruebas
-    "outDir": "dist/test",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
 
-    // Permite importar módulos CommonJS usando `import x from "pkg"` en lugar de `import * as x`
+    "types": ["jest", "node"],
+    "noEmit": true,
+
+    "verbatimModuleSyntax": false,
     "esModuleInterop": true,
-
-    // Permite hacer importaciones por defecto aunque la librería no exporte explícitamente `default`
-    "allowSyntheticDefaultImports": true
+    "skipLibCheck": true
   },
-
-  // Incluye solo los archivos de prueba dentro del directorio `test`
-  "include": ["test"]
+  "include": ["test/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
