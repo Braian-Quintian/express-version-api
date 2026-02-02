@@ -1,24 +1,50 @@
 import type { Config } from 'jest';
 
 const config: Config = {
+  preset: 'ts-jest',
   testEnvironment: 'node',
+  testMatch: ['**/test/**/*.test.ts'],
 
-  // Clave: tratar TS como ESM
-  preset: 'ts-jest/presets/default-esm',
-  extensionsToTreatAsEsm: ['.ts'],
-
+  // ✅ Configuración de transformación
   transform: {
-    '^.+\\.ts$': ['ts-jest', { useESM: true, tsconfig: 'tsconfig.jest.json' }],
+    '^.+\\.ts$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.test.json',
+        useESM: false,
+      },
+    ],
   },
 
-  // Clave: si en tu código importas con extensión .js (ej: ../src/index.js),
-  // Jest necesita mapearlo a TS sin la extensión al resolver módulos.
+  // ✅ Resolución de módulos (clave para resolver .js → .ts)
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
 
-  testMatch: ['**/test/**/*.test.ts'],
-  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
+  // ✅ Extensiones a resolver
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+
+  // ✅ Coverage
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['json', 'lcov', 'text', 'html'],
+  coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/test/', '/coverage/'],
+
+  // ✅ Coverage thresholds
+  coverageThreshold: {
+    global: {
+      branches: 50,
+      functions: 50,
+      lines: 50,
+      statements: 50,
+    },
+  },
+
+  // ✅ Configuraciones adicionales
+  roots: ['<rootDir>/src', '<rootDir>/test'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  clearMocks: true,
+  restoreMocks: true,
 };
 
 export default config;

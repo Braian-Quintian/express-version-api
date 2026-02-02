@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    // ─────────────────────────────────────────────────────────────────
+    // Lenguaje y Entorno
+    // ─────────────────────────────────────────────────────────────────
+    "target": "ES2022",
+    "lib": ["ES2022"],
+
+    // ─────────────────────────────────────────────────────────────────
+    // Módulos para Jest
+    // ─────────────────────────────────────────────────────────────────
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+
+    // ─────────────────────────────────────────────────────────────────
+    // Interoperabilidad
+    // ─────────────────────────────────────────────────────────────────
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    // Desactivar para tests ya que Jest maneja los imports
+    "verbatimModuleSyntax": false,
+
+    // ─────────────────────────────────────────────────────────────────
+    // Verificación de Tipos (modo estricto pero relajado para tests)
+    // ─────────────────────────────────────────────────────────────────
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    // Relajar algunas reglas estrictas para tests
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitOverride": false,
+
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    // ─────────────────────────────────────────────────────────────────
+    // Emisión
+    // ─────────────────────────────────────────────────────────────────
+    "outDir": "dist/test",
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "removeComments": false,
+    "noEmit": false,
+    "noEmitOnError": false,
+
+    // ─────────────────────────────────────────────────────────────────
+    // Proyecto
+    // ─────────────────────────────────────────────────────────────────
+    "incremental": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+
+    // ─────────────────────────────────────────────────────────────────
+    // Paths para resolver src desde tests
+    // ─────────────────────────────────────────────────────────────────
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
+    // ─────────────────────────────────────────────────────────────────
+    // Jest
+    // ─────────────────────────────────────────────────────────────────
+    "types": ["jest", "node"]
+  },
+  "include": ["test/**/*.ts", "test/**/*.test.ts", "src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "coverage"]
+}
