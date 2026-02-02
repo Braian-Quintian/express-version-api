@@ -1,0 +1,40 @@
+name: ❓ Question / Help
+description: Ask a question or get help with usage
+title: '[Question]: '
+labels: ['question']
+assignees: ['Braian-Quintian']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question? We're here to help! Please provide as much detail as possible.
+
+  - type: checkboxes
+    id: docs
+    attributes:
+      label: Have you checked the documentation?
+      options:
+        - label: I have read the README and documentation
+          required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide any context that might help us understand your question better.
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code Example
+      description: If applicable, share relevant code.
+      render: typescript

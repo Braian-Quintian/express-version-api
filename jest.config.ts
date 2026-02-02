@@ -1,20 +1,24 @@
 import type { Config } from 'jest';
 
 const config: Config = {
-  preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: ['**/test/**/*.test.ts'],
+
+  // Clave: tratar TS como ESM
+  preset: 'ts-jest/presets/default-esm',
+  extensionsToTreatAsEsm: ['.ts'],
+
   transform: {
-    '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
+    '^.+\\.ts$': ['ts-jest', { useESM: true, tsconfig: 'tsconfig.jest.json' }],
   },
-  collectCoverage: true,
-  coverageDirectory: 'coverage',
-  coverageReporters: ['json', 'lcov', 'text'],
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/',
-    '/test/'
-  ],
+
+  // Clave: si en tu código importas con extensión .js (ej: ../src/index.js),
+  // Jest necesita mapearlo a TS sin la extensión al resolver módulos.
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+
+  testMatch: ['**/test/**/*.test.ts'],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
 };
 
 export default config;

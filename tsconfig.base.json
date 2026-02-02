@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    // ─────────────────────────────────────────────────────────────────
+    // Lenguaje y Entorno
+    // ─────────────────────────────────────────────────────────────────
+    // ES2022 incluye top-level await, error cause, Object.hasOwn, etc.
+    "target": "ES2022",
+    // Incluye tipos modernos de ES2022 y Node.js
+    "lib": ["ES2022"],
+
+    // ─────────────────────────────────────────────────────────────────
+    // Módulos
+    // ─────────────────────────────────────────────────────────────────
+    // NodeNext es el estándar moderno para Node.js (soporta ESM y CJS)
+    "moduleResolution": "NodeNext",
+    // Resuelve package.json exports correctamente
+    "resolvePackageJsonExports": true,
+    "resolvePackageJsonImports": true,
+
+    // ─────────────────────────────────────────────────────────────────
+    // Interoperabilidad
+    // ─────────────────────────────────────────────────────────────────
+    // Permite `import x from "cjs-module"`
+    "esModuleInterop": true,
+    // Requerido para esModuleInterop
+    "allowSyntheticDefaultImports": true,
+    // Fuerza imports de tipo explícitos: `import type { X }` en vez de `import { X }`
+    "verbatimModuleSyntax": true,
+
+    // ─────────────────────────────────────────────────────────────────
+    // Verificación de Tipos (Modo Estricto Completo)
+    // ─────────────────────────────────────────────────────────────────
+    "strict": true,
+    // Detecta variables no usadas
+    "noUnusedLocals": true,
+    // Detecta parámetros no usados
+    "noUnusedParameters": true,
+    // Fuerza return en todas las ramas
+    "noImplicitReturns": true,
+    // Detecta fallthrough en switch sin break
+    "noFallthroughCasesInSwitch": true,
+    // Verifica indexación de objetos con índices arbitrarios
+    "noUncheckedIndexedAccess": true,
+    // Fuerza `this` tipado en funciones
+    "noImplicitThis": true,
+    // Fuerza `override` keyword cuando se sobreescribe métodos
+    "noImplicitOverride": true,
+    // Errores en propiedades con tipos incompatibles en clases derivadas
+    "noPropertyAccessFromIndexSignature": true,
+    // Detecta código inalcanzable
+    "allowUnreachableCode": false,
+    // Detecta labels no usados
+    "allowUnusedLabels": false,
+    // Trata cada archivo como módulo aislado (requerido para transpilers)
+    "isolatedModules": true,
+    // Asegura consistencia en casing de imports (crítico en Linux)
+    "forceConsistentCasingInFileNames": true,
+    // Salta verificación de tipos en node_modules (performance)
+    "skipLibCheck": true,
+    // Verifica que los tipos de override sean exactos
+    "exactOptionalPropertyTypes": true,
+
+    // ─────────────────────────────────────────────────────────────────
+    // Emisión
+    // ─────────────────────────────────────────────────────────────────
+    // Genera archivos .d.ts
+    "declaration": true,
+    // Genera .d.ts.map para navegación en IDEs
+    "declarationMap": true,
+    // Genera source maps para debugging
+    "sourceMap": true,
+    // Preserva estructura de directorios en output
+    "preserveConstEnums": true,
+    // No emite archivos si hay errores
+    "noEmitOnError": true,
+    // Importa helpers de tslib en vez de inlinearlos (reduce bundle size)
+    "importHelpers": true,
+
+    // ─────────────────────────────────────────────────────────────────
+    // Proyecto
+    // ─────────────────────────────────────────────────────────────────
+    // Habilita builds incrementales
+    "incremental": true,
+    // Permite importar archivos .json
+    "resolveJsonModule": true,
+    // Carpeta raíz del código fuente
+    "rootDir": "src"
+  },
+  "exclude": ["node_modules", "dist", "coverage"]
+}

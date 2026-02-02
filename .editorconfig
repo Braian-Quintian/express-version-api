@@ -1,0 +1,49 @@
+# EditorConfig - https://editorconfig.org
+# Configuración para mantener consistencia de estilo entre diferentes editores e IDEs.
+
+# Este es el archivo raíz, no buscar en directorios superiores
+root = true
+
+# Configuración por defecto para todos los archivos
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 100
+
+# TypeScript / JavaScript
+[*.{ts,tsx,js,jsx,mjs,cjs}]
+indent_size = 2
+
+# JSON / JSONC
+[*.{json,jsonc}]
+indent_size = 2
+
+# YAML
+[*.{yml,yaml}]
+indent_size = 2
+
+# Markdown
+[*.md]
+# No eliminar espacios finales en Markdown (se usan para saltos de línea)
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Makefiles requieren tabs
+[Makefile]
+indent_style = tab
+
+# Shell scripts
+[*.sh]
+indent_size = 2
+
+# Git config files
+[.git*]
+indent_size = 2
+
+# Package files
+[{package.json,package-lock.json}]
+indent_size = 2

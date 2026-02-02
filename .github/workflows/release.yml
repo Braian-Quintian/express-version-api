@@ -1,0 +1,161 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Validate Release
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Package version: $VERSION"
+
+      - name: Validate tag matches package.json version
+        run: |
+          TAG_VERSION="${{ github.ref_name }}"
+          TAG_VERSION="${TAG_VERSION#v}"  # Remove 'v' prefix if present
+          PKG_VERSION="${{ steps.version.outputs.version }}"
+
+          if [[ "$TAG_VERSION" != "$PKG_VERSION" ]]; then
+            echo "❌ Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)"
+            exit 1
+          fi
+          echo "✅ Version validated: $PKG_VERSION"
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run type check
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm run test:coverage
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Publish to NPM
+  # ─────────────────────────────────────────────────────────────────────────────
+  publish-npm:
+    name: Publish to NPM
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to NPM
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Log published version
+        run: echo "✅ Published version ${{ needs.validate.outputs.version }} to NPM"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Publish to GitHub Packages (Optional)
+  # ─────────────────────────────────────────────────────────────────────────────
+  publish-gpr:
+    name: Publish to GitHub Packages
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://npm.pkg.github.com/
+          scope: '@braian-quintian'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true # Don't fail if GPR publish fails
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Update Release Notes
+  # ─────────────────────────────────────────────────────────────────────────────
+  update-release:
+    name: Update Release Notes
+    runs-on: ubuntu-latest
+    needs: [validate, publish-npm]
+    permissions:
+      contents: write
+    steps:
+      - name: Update release with package info
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = '${{ needs.validate.outputs.version }}';
+            const release = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: context.ref.replace('refs/tags/', '')
+            });
+
+            const footer = `\n\n---\n\n📦 **NPM:** \`npm install express-version-api@${version}\`\n\n🔗 **Package:** https://www.npmjs.com/package/express-version-api/v/${version}`;
+
+            if (!release.data.body?.includes('📦 **NPM:**')) {
+              await github.rest.repos.updateRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.data.id,
+                body: (release.data.body || '') + footer
+              });
+              console.log('✅ Release notes updated with NPM install command');
+            }

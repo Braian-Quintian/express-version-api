@@ -1,0 +1,120 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior
+title: '[Bug]: '
+labels: ['bug', 'triage']
+assignees: ['Braian-Quintian']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the form below.
+
+  - type: checkboxes
+    id: existing-issue
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered.
+      options:
+        - label: I have searched the existing issues and none address my problem
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: When I try to... it does... instead of...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Setup middleware with...
+        2. Send request with header...
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Minimal Reproduction Code
+      description: Please provide a minimal code example that reproduces the issue.
+      render: typescript
+      placeholder: |
+        import versioningMiddleware from 'express-version-api';
+
+        const middleware = versioningMiddleware({
+          '^1': (req, res) => res.send('v1'),
+        });
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: Package Version
+      description: What version of express-version-api are you using?
+      options:
+        - 1.0.x
+        - 2.x.x (latest)
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: node-version
+    attributes:
+      label: Node.js Version
+      options:
+        - 18.x
+        - 20.x
+        - 22.x
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: express-version
+    attributes:
+      label: Express Version
+      options:
+        - 4.x
+        - 5.x
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - macOS
+        - Windows
+        - Linux
+        - Other
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or logs about the problem here.

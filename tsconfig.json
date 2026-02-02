@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  // Archivo principal que referencia todos los proyectos.
+  // Usar `tsc --build` para compilar todo, o `tsc -p tsconfig.esm.json` para uno específico.
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.esm.json" },
+    { "path": "./tsconfig.cjs.json" },
+  ]
+}

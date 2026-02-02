@@ -1,12 +1,31 @@
 {
-  // Extiende la configuración base desde el archivo ESM
-  "extends": "./tsconfig.esm.json",
-
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    // Compila usando CommonJS (para `require()`)
+    // ─────────────────────────────────────────────────────────────────
+    // Módulos CommonJS
+    // ─────────────────────────────────────────────────────────────────
+    // CommonJS para compatibilidad con `require()`
     "module": "CommonJS",
+    // Bundler resolution permite más flexibilidad en CJS
+    "moduleResolution": "Bundler",
+    // Desactivar para CJS ya que no aplica igual
+    "verbatimModuleSyntax": false,
 
-    // Carpeta de salida separada para los archivos CJS compilados
-    "outDir": "dist/cjs"
-  }
+    // ─────────────────────────────────────────────────────────────────
+    // Salida
+    // ─────────────────────────────────────────────────────────────────
+    "outDir": "dist/cjs",
+    // Los tipos se generan solo en ESM build
+    "declaration": false,
+    "declarationMap": false,
+
+    // ─────────────────────────────────────────────────────────────────
+    // Build incremental
+    // ─────────────────────────────────────────────────────────────────
+    "tsBuildInfoFile": "dist/.tsbuildinfo.cjs",
+    "composite": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "test", "**/*.test.ts", "**/*.spec.ts"]
 }
