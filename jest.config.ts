@@ -1,20 +1,27 @@
 import type { Config } from 'jest';
 
 const config: Config = {
-  preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: ['**/test/**/*.test.ts'],
+
+  // Trata .ts como ESM (clave para que no pete con "import ...")
+  extensionsToTreatAsEsm: ['.ts'],
+
   transform: {
-    '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
+    '^.+\\.(ts|tsx)$': [
+      'ts-jest',
+      {
+        useESM: true,
+        tsconfig: 'tsconfig.test.json',
+      },
+    ],
   },
-  collectCoverage: true,
-  coverageDirectory: 'coverage',
-  coverageReporters: ['json', 'lcov', 'text'],
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/',
-    '/test/'
-  ],
+
+  // Para imports NodeNext que usan .js en TS (ej: ../src/index.js)
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+
+  testMatch: ['<rootDir>/test/**/*.test.ts'],
 };
 
 export default config;
