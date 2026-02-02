@@ -1,0 +1,64 @@
+version: 2
+updates:
+  # NPM dependencies
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: America/Bogota
+    open-pull-requests-limit: 10
+    reviewers:
+      - Braian-Quintian
+    labels:
+      - dependencies
+      - automated
+    commit-message:
+      prefix: 'chore(deps)'
+      include: scope
+    groups:
+      # Group all TypeScript-related updates
+      typescript:
+        patterns:
+          - 'typescript*'
+          - '@types/*'
+          - 'ts-*'
+      # Group all testing-related updates
+      testing:
+        patterns:
+          - 'jest*'
+          - '@types/jest'
+          - 'supertest*'
+          - '@types/supertest'
+      # Group all linting/formatting updates
+      linting:
+        patterns:
+          - 'eslint*'
+          - '@eslint/*'
+          - 'prettier*'
+          - 'lint-staged'
+      # Group all build-related updates
+      build:
+        patterns:
+          - 'tsup*'
+          - 'husky'
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: America/Bogota
+    open-pull-requests-limit: 5
+    reviewers:
+      - Braian-Quintian
+    labels:
+      - dependencies
+      - github-actions
+      - automated
+    commit-message:
+      prefix: 'ci(deps)'
+      include: scope
