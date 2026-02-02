@@ -6,3 +6,4 @@ lcov-report/
 *.log
 eslint.config.js
 test/
+tsconfig.json

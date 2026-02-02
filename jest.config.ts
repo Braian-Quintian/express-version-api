@@ -3,25 +3,22 @@ import type { Config } from 'jest';
 const config: Config = {
   testEnvironment: 'node',
 
-  // Trata .ts como ESM (clave para que no pete con "import ...")
+  // Clave: tratar TS como ESM
+  preset: 'ts-jest/presets/default-esm',
   extensionsToTreatAsEsm: ['.ts'],
 
   transform: {
-    '^.+\\.(ts|tsx)$': [
-      'ts-jest',
-      {
-        useESM: true,
-        tsconfig: 'tsconfig.test.json',
-      },
-    ],
+    '^.+\\.ts$': ['ts-jest', { useESM: true, tsconfig: 'tsconfig.jest.json' }],
   },
 
-  // Para imports NodeNext que usan .js en TS (ej: ../src/index.js)
+  // Clave: si en tu código importas con extensión .js (ej: ../src/index.js),
+  // Jest necesita mapearlo a TS sin la extensión al resolver módulos.
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
 
-  testMatch: ['<rootDir>/test/**/*.test.ts'],
+  testMatch: ['**/test/**/*.test.ts'],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
 };
 
 export default config;
