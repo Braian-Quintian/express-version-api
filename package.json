@@ -57,8 +57,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check . --ignore-path .prettierignore",
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest --config jest.config.ts --passWithNoTests",
-    "test:watch": "jest --config jest.config.ts --watch",
-    "test:coverage": "jest --config jest.config.ts --coverage",
+    "test:watch": "jest --config jest.config.ts --watch --passWithNoTests",
+    "test:coverage": "jest --config jest.config.ts --coverage --passWithNoTests",
     "validate": "npm run typecheck && npm run lint && npm run format:check",
     "prepublishOnly": "npm run validate && npm run build",
     "prepare": "husky || true"
