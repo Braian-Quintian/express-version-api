@@ -7,3 +7,5 @@ lcov-report/
 eslint.config.js
 test/
 tsconfig.json
+test/**
+test-types
