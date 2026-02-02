@@ -1,0 +1,155 @@
+name: PR Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PR Validation
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate:
+    name: Validate PR
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type Check
+        run: npm run typecheck
+
+      - name: Format Check
+        run: npm run format:check
+
+      - name: Test
+        run: npm run test:coverage
+
+      - name: Build
+        run: npm run build
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Package Size Check
+  # ─────────────────────────────────────────────────────────────────────────────
+  size:
+    name: Package Size
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-branch
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build PR version
+        run: |
+          npm ci
+          npm run build
+          PR_SIZE=$(du -sb dist/ | cut -f1)
+          echo "PR_SIZE=$PR_SIZE" >> $GITHUB_ENV
+          echo "📦 PR build size: $(du -sh dist/ | cut -f1)"
+
+      - name: Build main version
+        run: |
+          cd main-branch
+          npm ci
+          npm run build 2>/dev/null || echo "Main branch build failed, skipping comparison"
+          if [ -d "dist" ]; then
+            MAIN_SIZE=$(du -sb dist/ | cut -f1)
+            echo "MAIN_SIZE=$MAIN_SIZE" >> $GITHUB_ENV
+            echo "📦 Main build size: $(du -sh dist/ | cut -f1)"
+          else
+            echo "MAIN_SIZE=0" >> $GITHUB_ENV
+          fi
+
+      - name: Compare sizes
+        run: |
+          PR=${{ env.PR_SIZE }}
+          MAIN=${{ env.MAIN_SIZE }}
+
+          if [ "$MAIN" -gt 0 ]; then
+            DIFF=$((PR - MAIN))
+            PERCENT=$(echo "scale=2; ($DIFF / $MAIN) * 100" | bc)
+            
+            if [ $DIFF -gt 0 ]; then
+              echo "📈 Size increased by $DIFF bytes ($PERCENT%)"
+            elif [ $DIFF -lt 0 ]; then
+              echo "📉 Size decreased by $((-DIFF)) bytes ($PERCENT%)"
+            else
+              echo "📊 Size unchanged"
+            fi
+          else
+            echo "ℹ️ No main branch build to compare"
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Conventional Commits Check
+  # ─────────────────────────────────────────────────────────────────────────────
+  commits:
+    name: Check Commits
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check commit messages
+        run: |
+          echo "Checking commit messages for conventional commits format..."
+
+          COMMITS=$(git log origin/main..HEAD --pretty=format:"%s")
+          FAILED=false
+
+          while IFS= read -r commit; do
+            if [[ -z "$commit" ]]; then
+              continue
+            fi
+            
+            if ! echo "$commit" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?: .+"; then
+              echo "❌ Invalid: $commit"
+              FAILED=true
+            else
+              echo "✅ Valid: $commit"
+            fi
+          done <<< "$COMMITS"
+
+          if [ "$FAILED" = true ]; then
+            echo ""
+            echo "Some commits don't follow conventional commits format."
+            echo "Expected: type(scope?): description"
+            echo "Examples: feat: add new feature, fix(api): resolve bug"
+            exit 1
+          fi
+
+          echo ""
+          echo "All commits follow conventional commits format!"

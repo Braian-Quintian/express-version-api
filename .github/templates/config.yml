@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/Braian-Quintian/express-version-api#readme
+    about: Check out the documentation before opening an issue
+  - name: 💬 Discussions
+    url: https://github.com/Braian-Quintian/express-version-api/discussions
+    about: Ask questions and discuss with the community
+  - name: 📦 NPM Package
+    url: https://www.npmjs.com/package/express-version-api
+    about: View package on NPM
