@@ -1,36 +1,39 @@
-import { expectType, expectError } from 'tsd';
-import type { Request, Response, NextFunction } from 'express';
+import { expectError, expectType } from 'tsd';
+import type { NextFunction, RequestHandler, Response } from 'express';
 import {
-  versioningMiddleware,
-  parseVersion,
-  versionSatisfies,
   isVersioningError,
-} from '../src/index.js';
+  parseVersion,
+  parseVersionRange,
+  versioningMiddleware,
+  versionSatisfies,
+} from '..';
 import type {
-  VersionHandlers,
-  VersioningOptions,
   ParsedVersion,
+  VersionHandlers,
+  VersionedRequestHandler,
   VersionedRequest,
-} from '../src/types.js';
+  VersioningErrorCode,
+  VersioningOptions,
+} from '..';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Middleware function types
 // ─────────────────────────────────────────────────────────────────────────────
 
 const handlers: VersionHandlers = {
-  '^1': (_req: any, res: any) => res.send('v1'),
-  '2.0.0': (_req: any, res: any) => res.send('v2'),
+  '^1': ((_req: VersionedRequest, res: Response) => {
+    res.send('v1');
+  }) as VersionedRequestHandler,
+  '2.0.0': ((_req: VersionedRequest, res: Response) => {
+    res.send('v2');
+  }) as VersionedRequestHandler,
 };
 
-// Should accept handlers only
-expectType<any>(versioningMiddleware(handlers));
+expectType<RequestHandler>(versioningMiddleware(handlers));
+expectType<RequestHandler>(versioningMiddleware(handlers, { fallbackStrategy: 'latest' }));
 
-// Should accept handlers with options
-expectType<any>(versioningMiddleware(handlers, { fallbackStrategy: 'latest' }));
-
-// Should error on invalid handlers type
-expectError(versioningMiddleware('invalid' as any));
-expectError(versioningMiddleware([] as any));
+expectError(versioningMiddleware('invalid'));
+expectError(versioningMiddleware([]));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Options type checking
@@ -49,15 +52,13 @@ const validOptions: VersioningOptions = {
 
 expectType<VersioningOptions>(validOptions);
 
-// Should error on invalid fallback strategy
 expectError<VersioningOptions>({
-  fallbackStrategy: 'invalid' as any,
+  fallbackStrategy: 'invalid',
 });
 
-// Should error on invalid source
 expectError<VersioningOptions>({
   extraction: {
-    sources: ['invalid' as any],
+    sources: ['invalid'],
   },
 });
 
@@ -80,12 +81,15 @@ if (parsed) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const version: ParsedVersion = { major: 1, minor: 2, patch: 3, raw: '1.2.3' };
-const range = { type: 'caret' as const, version: { major: 1, minor: 0, patch: 0, raw: '1.0.0' }, raw: '^1.0.0' };
-expectType<boolean>(versionSatisfies(version, range));
+const range = parseVersionRange('^1.0.0');
 
-// Should error on invalid arguments
-expectError(versionSatisfies('1.2.3' as any, range));
-expectError(versionSatisfies(version, 123 as any));
+if (!range) {
+  throw new Error('Expected valid range');
+}
+
+expectType<boolean>(versionSatisfies(version, range));
+expectError(versionSatisfies('1.2.3', range));
+expectError(versionSatisfies(version, 123));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Error type guard
@@ -94,7 +98,7 @@ expectError(versionSatisfies(version, 123 as any));
 const error: unknown = new Error('test');
 
 if (isVersioningError(error)) {
-  expectType<string>(error.code);
+  expectType<VersioningErrorCode>(error.code);
   expectType<number>(error.statusCode);
   expectType<string | undefined>(error.requestedVersion);
 }
@@ -103,7 +107,7 @@ if (isVersioningError(error)) {
 // VersionedRequest
 // ─────────────────────────────────────────────────────────────────────────────
 
-function handler(req: VersionedRequest, res: Response, next: NextFunction) {
+function handler(req: VersionedRequest, _res: Response, _next: NextFunction): void {
   expectType<string | undefined>(req.version);
 
   if (req.versionInfo) {
@@ -112,3 +116,5 @@ function handler(req: VersionedRequest, res: Response, next: NextFunction) {
     expectType<'header' | 'query' | 'path' | 'custom'>(req.versionInfo.source);
   }
 }
+
+void handler;

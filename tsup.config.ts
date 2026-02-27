@@ -1,30 +1,25 @@
-import { defineConfig } from 'tsup';
+import { defineConfig, type Options } from 'tsup';
 
-export default defineConfig({
-  // ─────────────────────────────────────────────────────────────────
-  // Entrada
-  // ─────────────────────────────────────────────────────────────────
-  entry: ['src/index.ts'],
+type CommonOptions = Pick<
+  Options,
+  | 'sourcemap'
+  | 'splitting'
+  | 'minify'
+  | 'target'
+  | 'platform'
+  | 'outDir'
+  | 'external'
+  | 'shims'
+  | 'treeshake'
+  | 'banner'
+  | 'esbuildOptions'
+>;
 
-  // ─────────────────────────────────────────────────────────────────
-  // Formatos de salida
-  // ─────────────────────────────────────────────────────────────────
-  format: ['cjs', 'esm'],
-
-  // ─────────────────────────────────────────────────────────────────
-  // Tipos
-  // ─────────────────────────────────────────────────────────────────
-  dts: true,
-
+const common: CommonOptions = {
   // ─────────────────────────────────────────────────────────────────
   // Source maps
   // ─────────────────────────────────────────────────────────────────
   sourcemap: true,
-
-  // ─────────────────────────────────────────────────────────────────
-  // Limpiar directorio de salida antes de build
-  // ─────────────────────────────────────────────────────────────────
-  clean: true,
 
   // ─────────────────────────────────────────────────────────────────
   // Dividir código en chunks (mejor tree-shaking)
@@ -50,15 +45,6 @@ export default defineConfig({
   // Directorio de salida
   // ─────────────────────────────────────────────────────────────────
   outDir: 'dist',
-
-  // ─────────────────────────────────────────────────────────────────
-  // Extensiones de archivos por formato
-  // ─────────────────────────────────────────────────────────────────
-  outExtension({ format }) {
-    return {
-      js: format === 'cjs' ? '.cjs' : '.js',
-    };
-  },
 
   // ─────────────────────────────────────────────────────────────────
   // No incluir dependencias externas en el bundle
@@ -88,4 +74,41 @@ export default defineConfig({
   esbuildOptions(options) {
     options.charset = 'utf8';
   },
-});
+};
+
+export default defineConfig([
+  {
+    ...common,
+    // ───────────────────────────────────────────────────────────────
+    // ESM entry (includes default export)
+    // ───────────────────────────────────────────────────────────────
+    entry: {
+      index: 'src/index.esm.ts',
+    },
+    format: ['esm'],
+    dts: {
+      entry: {
+        index: 'src/index.esm.ts',
+      },
+    },
+    clean: true,
+    outExtension() {
+      return { js: '.js' };
+    },
+  },
+  {
+    ...common,
+    // ───────────────────────────────────────────────────────────────
+    // CJS entry (named exports only to avoid mixed-export warning)
+    // ───────────────────────────────────────────────────────────────
+    entry: {
+      index: 'src/index.ts',
+    },
+    format: ['cjs'],
+    dts: false,
+    clean: false,
+    outExtension() {
+      return { js: '.cjs' };
+    },
+  },
+]);

@@ -16,7 +16,7 @@
     // ─────────────────────────────────────────────────────────────────
     // Build incremental
     // ─────────────────────────────────────────────────────────────────
-    "tsBuildInfoFile": "dist/.tsbuildinfo.esm",
+    "tsBuildInfoFile": ".cache/tsbuild/esm.tsbuildinfo",
     "composite": true
   },
   "include": ["src/**/*.ts", "test/middleware.test.ts"],

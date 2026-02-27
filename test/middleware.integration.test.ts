@@ -1,6 +1,6 @@
 import express, { type Express } from 'express';
 import request from 'supertest';
-import { versioningMiddleware, createVersionMiddleware } from '../src/middleware.js';
+import { versioningMiddleware } from '../src/middleware.js';
 import type { VersionHandlers } from '../src/types.js';
 
 describe('Versioning Middleware - Integration Tests', () => {
@@ -104,13 +104,31 @@ describe('Versioning Middleware - Integration Tests', () => {
         .set('Accept-Version', '1.0.0')
         .expect(200);
     });
+
+    it('should extract from path consistently when using a global regex', async () => {
+      app.get(
+        '/api/v1/users',
+        versioningMiddleware(handlers, {
+          extraction: {
+            sources: ['path'],
+            path: { pattern: /\/api\/v(\d+)\/users/g },
+          },
+        })
+      );
+
+      await request(app).get('/api/v1/users').expect(200);
+      await request(app).get('/api/v1/users').expect(200);
+    });
   });
 
   describe('Fallback strategies', () => {
     const handlers: VersionHandlers = {
-      '1.0.0': (_req: any, res: { json: (arg0: { version: string; }) => any; }) => res.json({ version: '1' }),
-      '2.0.0': (_req: any, res: { json: (arg0: { version: string; }) => any; }) => res.json({ version: '2' }),
-      '3.0.0': (_req: any, res: { json: (arg0: { version: string; }) => any; }) => res.json({ version: '3' }),
+      '1.0.0': (_req: any, res: { json: (arg0: { version: string; }) => any; }) =>
+        res.json({ version: '1' }),
+      '2.0.0': (_req: any, res: { json: (arg0: { version: string; }) => any; }) =>
+        res.json({ version: '2' }),
+      '3.0.0': (_req: any, res: { json: (arg0: { version: string; }) => any; }) =>
+        res.json({ version: '3' }),
     };
 
     it('should use latest fallback', async () => {
@@ -129,28 +147,29 @@ describe('Versioning Middleware - Integration Tests', () => {
       expect(response.body.version).toBe('3');
     });
 
-it('should use none fallback (error)', async () => {
-  app.get(
-    '/api',
-    versioningMiddleware(handlers, {
-      fallbackStrategy: 'none',
-    })
-  );
+    it('should use none fallback (error)', async () => {
+      app.get(
+        '/api',
+        versioningMiddleware(handlers, {
+          fallbackStrategy: 'none',
+        })
+      );
 
-  const response = await request(app)
-    .get('/api')
-    .set('Accept-Version', '99.0.0')
-    .expect(422); // ✅ era 404
+      const response = await request(app)
+        .get('/api')
+        .set('Accept-Version', '99.0.0')
+        .expect(422); // ✅ era 404
 
-  expect(response.body.error).toBe('VERSION_NOT_FOUND');
-});
+      expect(response.body.error).toBe('VERSION_NOT_FOUND');
+    });
 
     it('should use default handler', async () => {
       app.get(
         '/api',
         versioningMiddleware(handlers, {
           fallbackStrategy: 'default',
-          defaultHandler: (_req: any, res: { json: (arg0: { version: string; }) => any; }   ) => res.json({ version: 'default' }),
+          defaultHandler: (_req: any, res: { json: (arg0: { version: string; }) => any; }) =>
+            res.json({ version: 'default' }),
         })
       );
 
@@ -160,6 +179,91 @@ it('should use none fallback (error)', async () => {
         .expect(200);
 
       expect(response.body.version).toBe('default');
+    });
+
+    it('should throw when fallbackStrategy is invalid', () => {
+      expect(() =>
+        versioningMiddleware(handlers, {
+          fallbackStrategy: 'invalid' as any,
+        })
+      ).toThrow(/Invalid fallback strategy/);
+    });
+
+    it('should forward async default handler errors to Express error middleware', async () => {
+      app.get(
+        '/api',
+        versioningMiddleware(handlers, {
+          fallbackStrategy: 'default',
+          defaultHandler: async () => {
+            throw new Error('default handler failed');
+          },
+        })
+      );
+
+      app.use((error: Error, _req: any, res: any, _next: any) => {
+        res.status(500).json({ message: error.message });
+      });
+
+      const response = await request(app)
+        .get('/api')
+        .set('Accept-Version', '99.0.0')
+        .expect(500);
+
+      expect(response.body.message).toBe('default handler failed');
+    });
+
+    it('should preserve extraction source in versionInfo when using latest fallback', async () => {
+      app.get(
+        '/api',
+        versioningMiddleware(
+          {
+            '1.0.0': (req: any, res: any) => {
+              res.json({ versionInfo: req.versionInfo });
+            },
+          },
+          {
+            extraction: {
+              sources: ['query'],
+              query: { name: 'version' },
+            },
+            fallbackStrategy: 'latest',
+            attachVersionInfo: true,
+          }
+        )
+      );
+
+      const response = await request(app).get('/api?version=99.0.0').expect(200);
+
+      expect(response.body.versionInfo).toEqual({
+        requested: '99.0.0',
+        matched: '1.0.0',
+        source: 'query',
+      });
+    });
+
+    it('should preserve extraction source in versionInfo when using default fallback', async () => {
+      app.get(
+        '/api',
+        versioningMiddleware(handlers, {
+          extraction: {
+            sources: ['query'],
+            query: { name: 'version' },
+          },
+          fallbackStrategy: 'default',
+          attachVersionInfo: true,
+          defaultHandler: (req: any, res: any) => {
+            res.json({ versionInfo: req.versionInfo });
+          },
+        })
+      );
+
+      const response = await request(app).get('/api?version=99.0.0').expect(200);
+
+      expect(response.body.versionInfo).toEqual({
+        requested: '99.0.0',
+        matched: 'default',
+        source: 'query',
+      });
     });
   });
 
@@ -174,6 +278,21 @@ it('should use none fallback (error)', async () => {
     const response = await request(app).get('/api').expect(422); // ✅ era 400
 
     expect(response.body.error).toBe('MISSING_VERSION');
+  });
+
+  it('should use custom missingVersionMessage when configured', async () => {
+    app.get(
+      '/api',
+      versioningMiddleware(handlers, {
+        errorResponse: {
+          missingVersionMessage: 'Custom missing version message',
+        },
+      })
+    );
+
+    const response = await request(app).get('/api').expect(422);
+
+    expect(response.body.message).toBe('Custom missing version message');
   });
 
   it('should error on invalid version format', async () => {
@@ -231,15 +350,4 @@ it('should use none fallback (error)', async () => {
     });
   });
 
-  describe('Legacy API compatibility', () => {
-    it('should work with createVersionMiddleware', async () => {
-      const handlers: VersionHandlers = {
-        '^1': (_req: any, res: { json: (arg0: { version: number; }) => any; }) => res.json({ version: 1 }),
-      };
-
-      app.get('/api', createVersionMiddleware(handlers));
-
-      await request(app).get('/api').set('Accept-Version', '1.0.0').expect(200);
-    });
-  });
 });

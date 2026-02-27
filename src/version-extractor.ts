@@ -52,7 +52,17 @@ function extractFromQuery(req: VersionedRequest, paramName: string): string | un
  */
 function extractFromPath(req: VersionedRequest, pattern: RegExp): string | undefined {
   const path = req.path || req.url;
+  const isStatefulPattern = pattern.global || pattern.sticky;
+
+  if (isStatefulPattern) {
+    pattern.lastIndex = 0;
+  }
+
   const match = pattern.exec(path);
+
+  if (isStatefulPattern) {
+    pattern.lastIndex = 0;
+  }
 
   if (match?.[1]) {
     return match[1].trim();
