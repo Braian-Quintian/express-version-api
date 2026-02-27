@@ -25,7 +25,7 @@ const config: Config = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 
   // ✅ Coverage
-  collectCoverage: true,
+  collectCoverage: false,
   coverageDirectory: 'coverage',
   coverageReporters: ['json', 'lcov', 'text', 'html'],
   coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/test/', '/coverage/'],
