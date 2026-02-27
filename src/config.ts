@@ -53,6 +53,16 @@ export function resolveConfig(options?: VersioningOptions): ResolvedConfig {
     return DEFAULT_CONFIG;
   }
 
+  // Validate fallback strategy if provided
+  if (options.fallbackStrategy !== undefined) {
+    const validStrategies = new Set(['latest', 'none', 'default']);
+    if (!validStrategies.has(options.fallbackStrategy)) {
+      throw createInvalidConfigurationError(
+        `Invalid fallback strategy: '${options.fallbackStrategy}'. Valid strategies: latest, none, default`
+      );
+    }
+  }
+
   // Validate sources if provided
   if (options.extraction?.sources) {
     const validSources = new Set(['header', 'query', 'path', 'custom']);
