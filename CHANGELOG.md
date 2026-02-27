@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.4] - 2026-02-27
+
+### Added
+
+- Added `jsr.json` configuration and JSR package metadata.
+- Added JSR publication support for `@braian-quintian/express-version-api`.
+
+### Changed
+
+- Updated repository documentation to match the current runtime behavior and exports.
+- Hardened release automation to validate npm authentication before publish.
+
+### Fixed
+
+- Fixed `.npmrc` token interpolation to use `NODE_AUTH_TOKEN` in CI.
+- Fixed GitHub Packages publication flow by using scoped package publish in workflow.
+
+## [2.0.3] - 2026-02-27
+
+### Changed
+
+- Updated release workflow with explicit npm authentication verification.
+
 ## [2.0.0] - 2026-02-27
 
 ### Removed
