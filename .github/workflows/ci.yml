@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [develop, main]
   pull_request:
-    branches: [main]
+    branches: [develop, main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -105,6 +105,9 @@ jobs:
 
       - name: Build package
         run: npm run build
+
+      - name: Run type definition tests
+        run: npm run test:types
 
       - name: Check package size
         run: |
