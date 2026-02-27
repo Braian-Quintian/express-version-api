@@ -169,7 +169,7 @@ jobs:
         run: npm ci
 
       - name: Publish to JSR
-        run: npx jsr publish --provenance
+        run: npx jsr publish
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Update Release Notes
