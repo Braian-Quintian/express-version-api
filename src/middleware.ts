@@ -5,6 +5,7 @@ import type {
   VersionedRequest,
   CompiledHandler,
   ResolvedConfig,
+  VersionSource,
 } from './types.js';
 import type { VersioningError } from './types.js';
 import { resolveConfig, freezeConfig } from './config.js';
@@ -73,6 +74,13 @@ function getVersionNotFoundMessage(version: string, config: ResolvedConfig): str
   }
 
   return message;
+}
+
+/**
+ * Gets the missing version message based on configuration.
+ */
+function getMissingVersionMessage(config: ResolvedConfig): string {
+  return config.errorResponse.missingVersionMessage;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -151,11 +159,23 @@ export function versioningMiddleware(
     if (!extraction) {
       if (!config.requireVersion) {
         // Use fallback strategy
-        handleFallback(undefined, compiledHandlers, config, availableVersions, req, res, next);
+        handleFallback(
+          undefined,
+          undefined,
+          compiledHandlers,
+          config,
+          availableVersions,
+          req,
+          res,
+          next
+        );
         return;
       }
 
-      const error = createMissingVersionError(config.errorResponse.missingVersionStatus);
+      const error = createMissingVersionError(
+        config.errorResponse.missingVersionStatus,
+        getMissingVersionMessage(config)
+      );
       sendErrorResponse(error, req, res, next, config);
       return;
     }
@@ -190,7 +210,16 @@ export function versioningMiddleware(
     }
 
     // No match found, use fallback strategy
-    handleFallback(versionString, compiledHandlers, config, availableVersions, req, res, next);
+    handleFallback(
+      versionString,
+      source,
+      compiledHandlers,
+      config,
+      availableVersions,
+      req,
+      res,
+      next
+    );
   };
 }
 
@@ -203,6 +232,7 @@ export function versioningMiddleware(
  */
 function handleFallback(
   requestedVersion: string | undefined,
+  requestedSource: VersionSource | undefined,
   compiledHandlers: readonly CompiledHandler[],
   config: ResolvedConfig,
   availableVersions: readonly string[],
@@ -232,7 +262,7 @@ function handleFallback(
           req.versionInfo = {
             requested: requestedVersion,
             matched: latestHandler.key,
-            source: 'header', // Default since we're falling back
+            source: requestedSource ?? 'custom',
           };
         }
         executeHandler(latestHandler, req, res, next);
@@ -255,10 +285,10 @@ function handleFallback(
           req.versionInfo = {
             requested: requestedVersion,
             matched: 'default',
-            source: 'header',
+            source: requestedSource ?? 'custom',
           };
         }
-        void Promise.resolve(config.defaultHandler(req, res, next));
+        executeRequestHandler(config.defaultHandler, req, res, next);
       } else {
         // Fall back to latest
         const latestHandler = findLatestHandler(compiledHandlers);
@@ -268,7 +298,7 @@ function handleFallback(
             req.versionInfo = {
               requested: requestedVersion,
               matched: latestHandler.key,
-              source: 'header',
+              source: requestedSource ?? 'custom',
             };
           }
           executeHandler(latestHandler, req, res, next);
@@ -281,6 +311,14 @@ function handleFallback(
           sendErrorResponse(error, req, res, next, config);
         }
       }
+      break;
+    }
+
+    default: {
+      const error = createInvalidConfigurationError(
+        'Unsupported fallback strategy. Valid strategies: latest, none, default'
+      );
+      sendErrorResponse(error, req, res, next, config);
       break;
     }
   }
@@ -301,6 +339,28 @@ function executeHandler(
     // Handle async handlers
     if (result instanceof Promise) {
       result.catch((error: unknown) => {
+        next(error);
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Executes a request handler safely (sync + async).
+ */
+function executeRequestHandler(
+  handler: (req: VersionedRequest, res: Response, next: NextFunction) => unknown,
+  req: VersionedRequest,
+  res: Response,
+  next: NextFunction
+): void {
+  try {
+    const result = handler(req, res, next);
+
+    if (result instanceof Promise) {
+      void result.catch((error: unknown) => {
         next(error);
       });
     }
