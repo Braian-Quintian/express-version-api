@@ -7,67 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+## [1.0.7] - 2026-02-27
 
-- Initial release of express-version-api
-- Semantic versioning support with `^`, `~`, and exact matching
-- Multiple version extraction sources (header, query, path, custom)
-- Configurable fallback strategies (`latest`, `none`, `default`)
-- TypeScript-first implementation with comprehensive type definitions
-- Pre-compiled handler matching for optimal performance
-- Structured error handling with custom error classes
-- Version info attachment to requests
-- Request handler validation
-- Comprehensive test suite with >90% coverage
-- Full API documentation
+### Fixed
 
-### Features
+- Validated `fallbackStrategy` at config time and added defensive handling for unsupported values.
+- Fixed async `defaultHandler` error propagation to Express (`next(error)`), avoiding hung requests and unhandled rejections.
+- Corrected caret semantics for `0.x` ranges (for example, `^0.2.3` no longer matches `0.9.0`).
+- Applied `errorResponse.missingVersionMessage` in runtime responses.
+- Fixed path extraction with global/sticky regex by resetting `lastIndex`.
+- Preserved the real extraction source in `req.versionInfo` during fallback flows.
 
-- **Version Matching**
-  - Caret ranges (`^1.0.0`) for major version compatibility
-  - Tilde ranges (`~1.2.0`) for minor version compatibility
-  - Exact version matching (`1.2.3`)
-  - Priority-based matching (exact > tilde > caret)
+### Changed
 
-- **Version Extraction**
-  - HTTP headers (default: `Accept-Version`)
-  - Query parameters (configurable)
-  - URL path patterns (RegExp-based)
-  - Custom extraction functions
-  - Multi-source fallthrough with priority
-
-- **Configuration Options**
-  - `requireVersion`: Toggle version requirement (default: `true`)
-  - `fallbackStrategy`: Choose fallback behavior
-  - `defaultHandler`: Custom default handler
-  - `attachVersionInfo`: Add version metadata to requests
-  - `validateHandlers`: Enable handler validation
-  - `errorResponse`: Customize error responses
-
-- **Error Handling**
-  - `MISSING_VERSION`: Version header not provided
-  - `VERSION_NOT_FOUND`: Requested version not supported
-  - `INVALID_VERSION_FORMAT`: Malformed version string
-  - `INVALID_CONFIGURATION`: Invalid middleware configuration
-  - Custom error handler hook
-  - Configurable HTTP status codes
-  - Detailed error messages with available versions
-
-- **Developer Experience**
-  - Zero runtime dependencies
-  - Full TypeScript support
-  - Utility functions exported (`parseVersion`, `versionSatisfies`, `isVersioningError`)
-  - Backward compatible legacy API
-  - Comprehensive JSDoc documentation
-
-### Technical
-
-- Written in TypeScript 5.7 with strict mode
-- ESM and CommonJS dual package support
-- Modular architecture with separation of concerns
-- Pre-compilation of handlers at middleware creation
-- Frozen configuration for immutability
-- Performance-optimized version matching
+- `test:types` now runs against `test-types/**/*.test-d.ts` and is enforced in `validate` and CI.
+- CI workflows now target `develop` and `main`; PR checks compare against the actual base branch.
+- `npm test` no longer collects coverage by default.
+- Pre-commit hook now runs `lint-staged` instead of the full test suite.
+- Coverage files were removed from git tracking and are ignored by default.
+- Moved TypeScript incremental build info out of distributable outputs.
+- Removed unused dev dependencies (`@types/semver`, `ts-node`).
+- Split ESM/CJS build entrypoints to remove the mixed default+named CJS warning while keeping default export support for ESM.
 
 ---
 
@@ -87,7 +47,7 @@ This release represents a complete rewrite of the library with significant impro
   - **Migration**: Update your Node.js version to >= 18.0.0
 
 - **Package is now ESM-first** with CommonJS support
-  - **Migration**: Use `import` statements or require with `.default` in CommonJS
+  - **Migration**: Use `import` statements or named exports when using CommonJS
 
 ### Added
 
