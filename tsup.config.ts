@@ -1,30 +1,10 @@
 import { defineConfig } from 'tsup';
 
-export default defineConfig({
-  // ─────────────────────────────────────────────────────────────────
-  // Entrada
-  // ─────────────────────────────────────────────────────────────────
-  entry: ['src/index.ts'],
-
-  // ─────────────────────────────────────────────────────────────────
-  // Formatos de salida
-  // ─────────────────────────────────────────────────────────────────
-  format: ['cjs', 'esm'],
-
-  // ─────────────────────────────────────────────────────────────────
-  // Tipos
-  // ─────────────────────────────────────────────────────────────────
-  dts: true,
-
+const common = {
   // ─────────────────────────────────────────────────────────────────
   // Source maps
   // ─────────────────────────────────────────────────────────────────
   sourcemap: true,
-
-  // ─────────────────────────────────────────────────────────────────
-  // Limpiar directorio de salida antes de build
-  // ─────────────────────────────────────────────────────────────────
-  clean: true,
 
   // ─────────────────────────────────────────────────────────────────
   // Dividir código en chunks (mejor tree-shaking)
@@ -52,15 +32,6 @@ export default defineConfig({
   outDir: 'dist',
 
   // ─────────────────────────────────────────────────────────────────
-  // Extensiones de archivos por formato
-  // ─────────────────────────────────────────────────────────────────
-  outExtension({ format }) {
-    return {
-      js: format === 'cjs' ? '.cjs' : '.js',
-    };
-  },
-
-  // ─────────────────────────────────────────────────────────────────
   // No incluir dependencias externas en el bundle
   // ─────────────────────────────────────────────────────────────────
   external: ['express'],
@@ -85,7 +56,44 @@ export default defineConfig({
   // ─────────────────────────────────────────────────────────────────
   // Configuración de esbuild
   // ─────────────────────────────────────────────────────────────────
-  esbuildOptions(options) {
+  esbuildOptions(options: { charset?: string }) {
     options.charset = 'utf8';
   },
-});
+} as const;
+
+export default defineConfig([
+  {
+    ...common,
+    // ───────────────────────────────────────────────────────────────
+    // ESM entry (includes default export)
+    // ───────────────────────────────────────────────────────────────
+    entry: {
+      index: 'src/index.esm.ts',
+    },
+    format: ['esm'],
+    dts: {
+      entry: {
+        index: 'src/index.esm.ts',
+      },
+    },
+    clean: true,
+    outExtension() {
+      return { js: '.js' };
+    },
+  },
+  {
+    ...common,
+    // ───────────────────────────────────────────────────────────────
+    // CJS entry (named exports only to avoid mixed-export warning)
+    // ───────────────────────────────────────────────────────────────
+    entry: {
+      index: 'src/index.ts',
+    },
+    format: ['cjs'],
+    dts: false,
+    clean: false,
+    outExtension() {
+      return { js: '.cjs' };
+    },
+  },
+]);
