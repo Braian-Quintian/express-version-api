@@ -23,7 +23,7 @@
     // ─────────────────────────────────────────────────────────────────
     // Build incremental
     // ─────────────────────────────────────────────────────────────────
-    "tsBuildInfoFile": "dist/.tsbuildinfo.cjs",
+    "tsBuildInfoFile": ".cache/tsbuild/cjs.tsbuildinfo",
     "composite": true
   },
   "include": ["src/**/*.ts"],
