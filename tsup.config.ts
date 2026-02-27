@@ -1,6 +1,21 @@
-import { defineConfig } from 'tsup';
+import { defineConfig, type Options } from 'tsup';
 
-const common = {
+type CommonOptions = Pick<
+  Options,
+  | 'sourcemap'
+  | 'splitting'
+  | 'minify'
+  | 'target'
+  | 'platform'
+  | 'outDir'
+  | 'external'
+  | 'shims'
+  | 'treeshake'
+  | 'banner'
+  | 'esbuildOptions'
+>;
+
+const common: CommonOptions = {
   // ─────────────────────────────────────────────────────────────────
   // Source maps
   // ─────────────────────────────────────────────────────────────────
@@ -56,10 +71,10 @@ const common = {
   // ─────────────────────────────────────────────────────────────────
   // Configuración de esbuild
   // ─────────────────────────────────────────────────────────────────
-  esbuildOptions(options: { charset?: string }) {
+  esbuildOptions(options) {
     options.charset = 'utf8';
   },
-} as const;
+};
 
 export default defineConfig([
   {
