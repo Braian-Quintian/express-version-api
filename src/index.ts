@@ -11,10 +11,7 @@
 // Main Middleware
 // ─────────────────────────────────────────────────────────────────────────────
 
-export { versioningMiddleware, createVersionMiddleware } from './middleware.js';
-
-// Default export for convenience
-export { versioningMiddleware as default } from './middleware.js';
+export { versioningMiddleware } from './middleware.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
