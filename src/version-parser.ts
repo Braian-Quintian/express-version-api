@@ -10,6 +10,24 @@ import type { ParsedVersion, ParsedVersionRange, VersionRangeType } from './type
  */
 const VERSION_REGEX = /^(\^|~)?(\d+)(?:\.(\d+))?(?:\.(\d+))?$/;
 
+/**
+ * Gets how many version components were explicitly provided (1, 2, or 3).
+ */
+function getSpecifiedComponentCount(rawRange: string): 1 | 2 | 3 {
+  const withoutPrefix = rawRange.replace(/^[\^~]/, '');
+  const count = withoutPrefix.split('.').length;
+
+  if (count <= 1) {
+    return 1;
+  }
+
+  if (count === 2) {
+    return 2;
+  }
+
+  return 3;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Version Parsing
 // ─────────────────────────────────────────────────────────────────────────────
@@ -139,19 +157,44 @@ export function versionSatisfies(clientVersion: ParsedVersion, range: ParsedVers
 
   switch (range.type) {
     case 'caret': {
-      // ^1.2.3 matches 1.x.x where x.x >= 2.3
+      // ^1.2.3 matches >=1.2.3 <2.0.0
       if (cMajor !== rMajor) {
         return false;
       }
-      // Client minor must be >= range minor
-      if (cMinor < rMinor) {
-        return false;
+
+      // For major >= 1, caret allows all compatible minors/patches.
+      if (rMajor > 0) {
+        if (cMinor < rMinor) {
+          return false;
+        }
+
+        if (cMinor === rMinor && cPatch < rPatch) {
+          return false;
+        }
+
+        return true;
       }
-      // If same minor, client patch must be >= range patch
-      if (cMinor === rMinor && cPatch < rPatch) {
-        return false;
+
+      // For major 0, compatibility is stricter per semver.
+      // ^0.2.3 := >=0.2.3 <0.3.0
+      if (rMinor > 0) {
+        return cMinor === rMinor && cPatch >= rPatch;
       }
-      return true;
+
+      // ^0 := >=0.0.0 <1.0.0
+      // ^0.0 := >=0.0.0 <0.1.0
+      // ^0.0.3 := >=0.0.3 <0.0.4
+      const componentCount = getSpecifiedComponentCount(range.raw);
+
+      if (componentCount === 1) {
+        return true;
+      }
+
+      if (componentCount === 2) {
+        return cMinor === 0;
+      }
+
+      return cMinor === 0 && cPatch === rPatch;
     }
 
     case 'tilde': {
