@@ -244,27 +244,27 @@ interface VersioningOptions {
     header?: { name?: string };
     query?: { name?: string };
     path?: { pattern?: RegExp };
-    custom?: (req: Request) => string | null;
+    custom?: (req: Request) => string | undefined;
   };
 
   // Version requirement
   requireVersion?: boolean; // Default: true
 
   // Fallback behavior
-  fallbackStrategy?: 'latest' | 'none' | 'default'; // Default: 'none'
+  fallbackStrategy?: 'latest' | 'none' | 'default'; // Default: 'default'
   defaultHandler?: RequestHandler;
 
   // Metadata
-  attachVersionInfo?: boolean; // Default: false
+  attachVersionInfo?: boolean; // Default: true
 
   // Validation
   validateHandlers?: boolean; // Default: true
 
   // Error responses
   errorResponse?: {
-    missingVersionStatus?: number; // Default: 400
-    versionNotFoundStatus?: number; // Default: 404
-    invalidVersionFormatStatus?: number; // Default: 422
+    missingVersionStatus?: number; // Default: 422
+    versionNotFoundStatus?: number; // Default: 422
+    missingVersionMessage?: string; // Default: 'API version is required'
 
     versionNotFoundMessage?: string | ((version: string) => string);
     includeRequestedVersion?: boolean; // Default: true
@@ -351,14 +351,14 @@ app.use(
 
 ## 🔄 Fallback Strategies
 
-### `none` (Default)
+### `none`
 
-Returns 404 error when version doesn't match:
+Returns 422 error when version doesn't match:
 
 ```typescript
 app.use('/api', versioningMiddleware({ '^1': v1Handler }, { fallbackStrategy: 'none' }));
 
-// Request with version 2.0.0 → 404 Not Found
+// Request with version 2.0.0 → 422 Unprocessable Entity
 ```
 
 ### `latest`
@@ -802,7 +802,7 @@ describe('API Versioning', () => {
 
 **Breaking Changes:**
 
-1. **Default fallback strategy changed** from `latest` to `none`
+1. **Default fallback strategy changed** from `latest` to `default`
 2. **`requireVersion` now defaults to `true`**
 3. **Handler compilation** is now pre-computed (performance improvement)
 
@@ -828,7 +828,7 @@ app.use(
       '^2': v2Handler,
     },
     {
-      fallbackStrategy: 'latest', // Explicit
+      fallbackStrategy: 'default', // Explicit
     }
   )
 );
