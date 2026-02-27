@@ -7,11 +7,14 @@ import { VersioningError, type VersioningErrorCode } from './types.js';
 /**
  * Creates a VersioningError for missing version in request.
  */
-export function createMissingVersionError(statusCode = 422): VersioningError {
+export function createMissingVersionError(
+  statusCode = 422,
+  message = 'API version is required'
+): VersioningError {
   return new VersioningError(
     {
       code: 'MISSING_VERSION',
-      message: 'API version is required',
+      message,
     },
     statusCode
   );
