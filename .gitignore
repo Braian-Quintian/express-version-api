@@ -3,3 +3,10 @@ node_modules
 
 # dist directory
 dist
+
+# test coverage
+coverage
+
+# TypeScript incremental cache
+.cache
+*.tsbuildinfo
